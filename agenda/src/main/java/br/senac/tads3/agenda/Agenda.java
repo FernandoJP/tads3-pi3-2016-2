@@ -7,6 +7,7 @@ package br.senac.tads3.agenda;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -35,7 +36,7 @@ public class Agenda extends ConexaoBD {
     System.out.print("Digite o e-mail");
     String email = entrada.nextLine();
     
-    System.out.print("Digite o telefone no formato 99 99999-9999");
+    System.out.print("Digite o telefone no formato 99 99999-9999: ");
     String telefone = entrada.nextLine();
     
     // 1) Abrir conexao
@@ -88,14 +89,59 @@ public class Agenda extends ConexaoBD {
 	}
       }
     }
+       
     
-    
-    
-    // 3) Fechar conexao
-    
-  }
+    }
+  
+    public void consulta() throws SQLException, ClassNotFoundException {
 
-  public static void main(String[] args) {
+        ResultSet result;
+        Connection conn = obterConexao();
+        PreparedStatement st;
+        st = conn.prepareStatement("Select * from TB_CONTATO");
+
+        result = st.executeQuery();
+
+       while (result.next()) {
+            System.out.println("\nNome: " + result.getString("NM_CONTATO"));
+            System.out.println("Nome: " + result.getString("DT_NASCIMENTO"));
+            System.out.println("Nome: " + result.getString("VL_TELEFONE"));
+            System.out.println("Nome: " + result.getString("VL_EMAIL"));
+            System.out.println("Nome: " + result.getString("DT_CADASTRO")+"\n");
+                    
+        }
+
+        conn.close();
+        st.close();
+    }
+    
+    
+    public void alterar() throws SQLException, ClassNotFoundException{
+
+         System.out.println("Digite o nome do contato e Nascimento: ");
+        String nome = entrada.nextLine();
+        String data = entrada.next();
+        
+          Connection conn = obterConexao();
+          PreparedStatement st = conn.prepareStatement("Update TB_CONTATO set NM_CONTATO=?, DT_NASCIMENTO=?,"
+                  + "VL_TELEFONE=?,VL_EMAIL=?,DT_CADASTRO=? where NM_CONTATO=? and DT_NASCIMENTO=?");
+          
+        st.setString(6, nome);
+
+        DateFormat formatador = new SimpleDateFormat("dd/MM/yyyy");
+        Date dataNasc = null;
+
+        try {
+            dataNasc = formatador.parse(data);
+        } catch (ParseException ex) {
+            st.setDate(7, new java.sql.Date(dataNasc.getTime()));
+        }
+
+       
+        
+    }
+
+  public static void main(String[] args) throws SQLException, ClassNotFoundException {
     Agenda instancia = new Agenda();
 
     do {
@@ -109,6 +155,7 @@ public class Agenda extends ConexaoBD {
       int opcao = Integer.parseInt(strOpcao);
       switch (opcao) {
 	case 1:
+            instancia.consulta();
 	  break;
 	case 2:
 	  instancia.incluir();
